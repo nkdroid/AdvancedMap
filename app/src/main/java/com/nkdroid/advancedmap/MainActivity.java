@@ -1,5 +1,6 @@
 package com.nkdroid.advancedmap;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ public class MainActivity extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     protected static final String TAG = "location-updates-sample";
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 100;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
@@ -40,7 +41,9 @@ public class MainActivity extends ActionBarActivity implements
     protected Location mCurrentLocation;
     protected String mLastUpdateTime;
     GoogleMap map;
-    private String myLatitude,myLongitude;
+
+    private double myLatitude,myLongitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +52,7 @@ public class MainActivity extends ActionBarActivity implements
         mLastUpdateTime = "";
         // Get a handle to the Map Fragment
         map= ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         updateValuesFromBundle(savedInstanceState);
         buildGoogleApiClient();
 
@@ -112,19 +116,26 @@ public class MainActivity extends ActionBarActivity implements
 
             LatLng latLong = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
             map.setMyLocationEnabled(true);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, 15));
-
-            map.clear();
-            map.addCircle(new CircleOptions()
-                            .center(latLong)
-                            .radius(500)
-                            .strokeWidth(0f)
-                            .fillColor(R.color.common_action_bar_splitter));
-            myLatitude=String.valueOf(mCurrentLocation.getLatitude());
-            myLongitude=String.valueOf(mCurrentLocation.getLongitude());
 
 
-//        Toast.makeText(MainActivity.this,mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude(),Toast.LENGTH_LONG).show();
+            if(!(myLatitude==mCurrentLocation.getLatitude() || myLongitude==mCurrentLocation.getLongitude())){
+                myLatitude=mCurrentLocation.getLatitude();
+                myLongitude=mCurrentLocation.getLongitude();
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, 15));
+                map.clear();
+                map.addCircle(new CircleOptions()
+                        .center(latLong)
+                        .radius(500)
+                        .strokeWidth(0f)
+                        .zIndex(0.5f)
+
+                        .fillColor(Color.parseColor("#80000000")));
+
+            }else {
+
+            }
+
+
         } catch (Exception e){
             e.printStackTrace();
         }
